@@ -1,10 +1,14 @@
 package com.toy.springSecurity.config.oauth;
 
 import com.toy.springSecurity.config.auth.PrincipalDetails;
+import com.toy.springSecurity.config.oauth.provider.FaceBookUserInfo;
+import com.toy.springSecurity.config.oauth.provider.GoogleUserInfo;
+import com.toy.springSecurity.config.oauth.provider.OAuth2UserInfo;
 import com.toy.springSecurity.model.User;
 import com.toy.springSecurity.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Bean;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService;
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
@@ -30,9 +34,21 @@ public class PrincipalOauth2UserService extends DefaultOAuth2UserService {
         //userRequest -> loadUser함수 -> 회원 프로필
         System.out.println("oAuth2User.getAttributes() = " + oAuth2User.getAttributes());
 
-        String provider = userRequest.getClientRegistration().getClientId();//google
-        String providerId = oAuth2User.getAttribute("sub");
-        String email = oAuth2User.getAttribute("email");
+        OAuth2UserInfo oAuth2UserInfo = null;
+        if(userRequest.getClientRegistration().getRegistrationId().equals("google")) {
+            System.out.println("google login request");
+            oAuth2UserInfo = new GoogleUserInfo(oAuth2User.getAttributes());
+        }else if(userRequest.getClientRegistration().getRegistrationId().equals("facebook")){
+            System.out.println("facebook login request");
+            oAuth2UserInfo = new FaceBookUserInfo(oAuth2User.getAttributes());
+        }else{
+            System.out.println("notProper request");
+        }
+
+
+        String provider = oAuth2UserInfo.getProvider();//google
+        String providerId = oAuth2UserInfo.getProviderId();
+        String email = oAuth2UserInfo.getEmail();
         String username = provider + "_" + providerId;
         String password = bCryptPasswordEncoder.encode("geneaky");
         String role = "ROLE_USER";
