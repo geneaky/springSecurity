@@ -3,6 +3,7 @@ package com.toy.springSecurity.config.oauth;
 import com.toy.springSecurity.config.auth.PrincipalDetails;
 import com.toy.springSecurity.config.oauth.provider.FaceBookUserInfo;
 import com.toy.springSecurity.config.oauth.provider.GoogleUserInfo;
+import com.toy.springSecurity.config.oauth.provider.NaverUserInfo;
 import com.toy.springSecurity.config.oauth.provider.OAuth2UserInfo;
 import com.toy.springSecurity.model.User;
 import com.toy.springSecurity.repository.UserRepository;
@@ -15,6 +16,8 @@ import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Service;
+
+import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
@@ -41,8 +44,11 @@ public class PrincipalOauth2UserService extends DefaultOAuth2UserService {
         }else if(userRequest.getClientRegistration().getRegistrationId().equals("facebook")){
             System.out.println("facebook login request");
             oAuth2UserInfo = new FaceBookUserInfo(oAuth2User.getAttributes());
+        }else if(userRequest.getClientRegistration().getRegistrationId().equals("naver")){
+            System.out.println("naver login request");
+            oAuth2UserInfo = new NaverUserInfo((Map)oAuth2User.getAttributes().get("response"));
         }else{
-            System.out.println("notProper request");
+            System.out.println("not proper request");
         }
 
 
